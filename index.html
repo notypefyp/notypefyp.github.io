@@ -113,5 +113,21 @@
             <span class="discord-text">notypefyp</span>
         </div>
     </div>
+    <script>
+        const titles = [
+            "огурцы нотайпа",
+            "пиздяо",
+            "обо мне",
+            "напишите мне в дс :3",
+            "щшуашоуощашлаы"
+        ];
+
+        function changeTitle() {
+            const randomIndex = Math.floor(Math.random() * titles.length);
+            document.title = titles[randomIndex];
+        }
+
+        setInterval(changeTitle, 5000); // Change title every 10 seconds
+    </script>
 </body>
 </html>
