@@ -1,65 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <title>21:00</title>
+    <title>notype - WebTerm Interface</title>
     <style>
         body {
+            background-color: #000;
+            color: #f0f0f0;
+            font-family: monospace;
+            margin: 0;
+            padding: 10px;
+            overflow: hidden;
+        }
+        .output {
+            white-space: pre-line;
+            color: #ffffff;
+            overflow-y: auto;
+            max-width: 800px;
+        }
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+        .prompt {
+            background: linear-gradient(90deg, #ffcc00, #00ff00);
+            -webkit-background-clip: text;
+            color: transparent;
+            padding: 2px 5px;
+            font-weight: bold;
+        }
+        .dollar-sign {
+            color: #ffffff;
+            margin-right: 5px;
+        }
+        .input-field {
+            background: none;
+            border: none;
+            color: #ffffff;
+            outline: none;
+            font-family: monospace;
+            font-size: 1em;
+            flex-grow: 1;
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #000;
-            color: #ffffff;
-            font-family: Montserrat, sans-serif;
+        }
+        .modal {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            width: 300px;
+            border-radius: 8px;
             text-align: center;
         }
-        .container {
-            max-width: 500px;
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
-        h1 {
-            font-size: 2em;
-            margin: 0;
+        .modal-content {
+            font-size: 14px;
+            margin-bottom: 20px;
         }
-        p {
-            font-size: 1.2em;
-            color: #c0c0c0;
+        .close-button {
+            background-color: #555;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .close-button:hover {
+            background-color: #777;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Clock...</h1>
-        <p id="countdown"></p>
-    </div>
-
     <script>
-        function countdown() {
-            const now = new Date();
-            const target = new Date();
-            target.setUTCHours(18, 0, 0, 0); // 21:00 по МСК - это 18:00 по UTC
+        function processCommand(event) {
+            if (event.key === 'Enter') {
+                const inputField = document.getElementById('input-field');
+                const output = document.getElementById('output');
+                const command = inputField.value.trim();
 
-            if (now > target) {
-                target.setUTCDate(target.getUTCDate() + 1);
+                let response = '';
+                switch (command) {
+                    case './help':
+                        response = `Commands:\n./about - About me.\n./contact - My Telegram, Discord, Email accounts to contact me.\n./projects - My projects.\n./clear - Clear screen.\n./info - Show welcome modal window.`;
+                        break;
+                    case './about':
+                        response = `Hello, I am Dan (Daniil), my internet name is notype or /dev/null. I can speak Russian and English. I know Python, C#, and a few other programming languages.`;
+                        break;
+                    case './contact':
+                        response = `Telegram: https://t.me/devnullusr/\nDiscord: @notypefyp\nEmail: notypefyp@proton.me`;
+                        break;
+                    case './projects':
+                        response = `My projects:\n1. Diode File Hosting - Currently on migration.`;
+                        break;
+                    case './info':
+                        response = `Modal Window Opened.`;
+                        showModal();
+                        break;
+                    case './clear':
+                        output.innerHTML = '';
+                        inputField.value = '';
+                        return;
+                    default:
+                        response = `Unknown command.`;
+                }
+
+                output.innerHTML += `<div><span class="prompt">notype:~</span><span class="dollar-sign">$</span> ${command}</div><div>${response}</div>`;
+                inputField.value = '';
+                output.scrollTop = output.scrollHeight;
             }
-
-            const diff = target - now;
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            document.getElementById("countdown").innerHTML = 
-                hours + "hours " + minutes + "minutes " + seconds + "seconds ";
-
-            setTimeout(countdown, 1000);
         }
 
-        countdown();
+        function showModal() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
     </script>
+</head>
+<body>
+    <div class="output" id="output">
+        <div>Welcome.</div>
+    </div>
+    <div class="input-line">
+        <span class="prompt">notype:~</span><span class="dollar-sign">$</span>
+        <input type="text" id="input-field" class="input-field" onkeydown="processCommand(event)" autofocus>
+    </div>
+
+    <!-- Модальное окно -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Welcome to WebTerm Interface maded by notype.</div>
+            <div class="modal-content">• Type ./help for list of all commands.</div>
+            <a href="https://notype.ru/old/index.html">Old Website</a>
+            <button class="close-button" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
 </body>
 </html>
