@@ -1,34 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Null Pointer</title>
+    <title>notype - WebTerm Interface</title>
     <style>
-        /* Подключение шрифта Montserrat и Font Awesome */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
-
-        /* Основные стили */
+        :root {
+            --gradient-start: #665151;
+            --gradient-end: #a16767;
+            --output-text-color: #ffffff;
+        }
         body {
-            margin: 0;
-            padding: 0;
             background-color: #000;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            color: var(--output-text-color);
+            font-family: monospace;
+            margin: 0;
+            padding: 10px;
             overflow: hidden;
         }
+        .output {
+            white-space: pre-line;
+            color: var(--output-text-color);
+            overflow-y: auto;
+            max-width: 800px;
+        }
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+        .prompt {
+            background: linear-gradient(50deg, var(--gradient-start), var(--gradient-end));
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .dollar-sign {
+            color: #ffffff;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .input-field {
+            background: none;
+            border: none;
+            color: #ffffff;
+            outline: none;
+            font-family: monospace;
+            font-size: 1em;
+            flex-grow: 1;
+        }
 
-        a {
-            font-size: 25px;
+        /* Модальные окна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal {
+            background-color: #333;
             color: #fff;
+            padding: 20px;
+            width: 300px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .modal-content {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .close-button {
+            background-color: #555;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .close-button:hover {
+            background-color: #777;
+        }
+        a {
+            color: #ffffff;
         }
     </style>
+    <script>
+        function processCommand(event) {
+            if (event.key === 'Enter') {
+                const inputField = document.getElementById('input-field');
+                const output = document.getElementById('output');
+                const command = inputField.value.trim();
+
+                let response = '';
+                switch (command) {
+                    case './help':
+                        response = `Commands:\n./about - About me.\n./contact - My Telegram, Discord, Email accounts to contact me.\n./projects - My projects.\n./clear - Clear screen.\n./info - Show welcome modal window.\n./config - Open configuration modal window.`;
+                        break;
+                    case './about':
+                        response = `Hello, I am Dan (Daniil), my internet name is notype or /dev/null. I can speak Russian and English. I know Python, C#, and a few other programming languages.`;
+                        break;
+                    case './contact':
+                        response = `Telegram: https://t.me/devnullusr/\nDiscord: @notypefyp\nEmail: notypefyp@proton.me`;
+                        break;
+                    case './projects':
+                        response = `My projects:\n1. Diode File Hosting - Currently on migration.`;
+                        break;
+                    case './info':
+                        response = `Modal Window Opened.`;
+                        showModal('modal-overlay');
+                        break;
+                    case './config':
+                        response = `Configuration Modal Opened.`;
+                        showModal('config-modal-overlay');
+                        break;
+                    case './clear':
+                        output.innerHTML = '';
+                        inputField.value = '';
+                        return;
+                    default:
+                        response = `Unknown command.`;
+                }
+
+                output.innerHTML += `<div><span class="prompt">notype@webterm:~</span><span class="dollar-sign">$</span>${command}</div><div>${response}</div>`;
+                inputField.value = '';
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function applySettings() {
+            const gradientStart = document.getElementById('gradient-start').value;
+            const gradientEnd = document.getElementById('gradient-end').value;
+            const outputTextColor = document.getElementById('output-text-color').value;
+
+            document.documentElement.style.setProperty('--gradient-start', gradientStart);
+            document.documentElement.style.setProperty('--gradient-end', gradientEnd);
+            document.documentElement.style.setProperty('--output-text-color', outputTextColor);
+
+            closeModal('config-modal-overlay');
+        }
+
+        function updateColorLabel(inputId, labelId) {
+            const colorValue = document.getElementById(inputId).value;
+            document.getElementById(labelId).textContent = colorValue;
+        }
+    </script>
 </head>
 <body>
-    <a href="https://pub.notype.ru">Status</a>
+    <div class="output" id="output">
+    </div>
+    <div class="input-line">
+        <span class="prompt">notype@webterm:~</span><span class="dollar-sign">$</span>
+        <input type="text" id="input-field" class="input-field" onkeydown="processCommand(event)" autofocus>
+    </div>
+
+    <!-- Основное модальное окно -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Welcome to WebTerm Interface made by notype.</div>
+            <div class="modal-content">• Type ./help for list of all commands.</div>
+            <a href="https://notype.ru/old/index.html">Old Website</a>
+            <a href="https://pub.notype.ru/">Status</a>
+            <button class="close-button" onclick="closeModal('modal-overlay')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно настройки -->
+    <div id="config-modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Configuration</div>
+            <div class="modal-content">
+                <label>Gradient Start Color: 
+                    <input type="color" id="gradient-start" value="#665151" onchange="updateColorLabel('gradient-start', 'gradient-start-label')">
+                    <span id="gradient-start-label">#665151</span>
+                </label><br><br>
+                <label>Gradient End Color: 
+                    <input type="color" id="gradient-end" value="#a16767" onchange="updateColorLabel('gradient-end', 'gradient-end-label')">
+                    <span id="gradient-end-label">#a16767</span>
+                </label><br><br>
+                <label>Output Text Color: 
+                    <input type="color" id="output-text-color" value="#ffffff" onchange="updateColorLabel('output-text-color', 'output-text-color-label')">
+                    <span id="output-text-color-label">#ffffff</span>
+                </label>
+            </div>
+            <button class="close-button" onclick="applySettings()">Apply</button>
+            <button class="close-button" onclick="closeModal('config-modal-overlay')">Закрыть</button>
+        </div>
+    </div>
 </body>
 </html>
